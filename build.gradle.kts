@@ -13,6 +13,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("org.jfree:jfreechart:1.5.3")
 }
 
 tasks.test {
@@ -20,9 +21,17 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(17)
 }
 
 application {
     mainClass.set("MainKt")
+}
+
+tasks.withType<JavaExec> {
+    systemProperty("file.encoding", "UTF-8")
+}
+
+tasks.withType<Test> {
+    systemProperty("file.encoding", "UTF-8")
 }
