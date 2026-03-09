@@ -19,19 +19,21 @@ object CsvParser {
 }
 
 private fun String.toPlayer(): Player {
-    val playerInfo = split(";")
+    val parts = split(";")
+
+    fun safeInt(index: Int) = parts.getOrNull(index)?.toIntOrNull() ?: 0
 
     return Player(
-        name = playerInfo[0],
-        team = Team(playerInfo[1], playerInfo[2]),
-        position = Position.valueOf(playerInfo[3]),
-        nationality = playerInfo[4],
-        agency = playerInfo[5],
-        transferCost = playerInfo[6].toInt(),
-        participations = playerInfo[7].toInt(),
-        goals = playerInfo[8].toInt(),
-        assists = playerInfo[9].toInt(),
-        yellowCards = playerInfo[10].toInt(),
-        redCards = playerInfo[11].toInt()
+        name = parts[0],
+        team = Team(parts[1], parts[2]),
+        position = Position.valueOf(parts[3]),
+        nationality = parts[4],
+        agency = parts[5],
+        transferCost = safeInt(6),
+        participations = safeInt(7),
+        goals = safeInt(8),
+        assists = safeInt(9),
+        yellowCards = safeInt(10),
+        redCards = safeInt(11)
     )
 }

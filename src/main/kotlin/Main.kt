@@ -1,84 +1,63 @@
 import parser.CsvParser
 import resolver.Resolver
-import utils.Translit
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartUtils
 import org.jfree.data.general.DefaultPieDataset
 import java.io.File
 
 fun main() {
-    println(Translit.convert("==================================="))
-    println(Translit.convert("PRAKTICHESKAYA RABOTA - VARIANT 4"))
-    println(Translit.convert("==================================="))
+    println("практика - вариант 4")
 
-    // Zagruzhaem dannye
-    val allPlayers = CsvParser.getPlayers()
-    val analyzer = Resolver(allPlayers)
+    val players = CsvParser.getPlayers()
+    val resolver = Resolver(players)
 
-    // Zadanie 1 - Igroki bez agentstva
-    println(Translit.convert("\n[1] Igroki bez agentstva:"))
-    val withoutAgency = analyzer.getCountWithoutAgency()
-    println("    -> $withoutAgency chelovek")
+    // Задание 1
+    println("\n[1] Игроки без агентства:")
+    println("    -> ${resolver.getCountWithoutAgency()} человек")
 
-    // Zadanie 2 - Luchshiy zashchitnik bombardir
-    println(Translit.convert("\n[2] Luchshiy zashchitnik-bombardir:"))
-    val (bestScorer, goalsAmount) = analyzer.getBestScorerDefender()
-    println("    -> $bestScorer (goly: $goalsAmount)")
+    // Задание 2
+    println("\n[2] Лучший защитник-бомбардир:")
+    val (bestScorer, goals) = resolver.getBestScorerDefender()
+    println("    -> $bestScorer забил $goals голов")
 
-    // Zadanie 3 - Poziciya samogo dorogogo nemca
-    println(Translit.convert("\n[3] Poziciya samogo dorogogo nemeckogo igroka:"))
-    val germanPosition = analyzer.getTheExpensiveGermanPlayerPosition()
-    println("    -> ${Translit.convert(germanPosition)}")
+    // Задание 3
+    println("\n[3] Позиция самого дорогого немецкого игрока:")
+    println("    -> ${resolver.getTheExpensiveGermanPlayerPosition()}")
 
-    // Zadanie 4 - Samaya grubaya komanda
-    println(Translit.convert("\n[4] Komanda s naibolshim srednim chislom krasnyh kartochek:"))
-    val rudeTeam = analyzer.getTheRudestTeam()
+    // Задание 4
+    println("\n[4] Самая грубая команда:")
+    val rudeTeam = resolver.getTheRudestTeam()
     println("    -> ${rudeTeam.name} (${rudeTeam.city})")
 
-    // Vizualizaciya - diagramma po stranam
-    println(Translit.convert("\n[5] Sozdanie diagrammy raspredeleniya po stranam..."))
-    val countryStats = analyzer.getPlayersByCountry()
+    // Визуализация
+    println("\n[5] Создание диаграммы распределения по странам...")
+    val countryStats = resolver.getPlayersByCountry()
 
-    // Vyvod statistiki v konsol
-    println(Translit.convert("\nSTATISTIKA PO STRANAM:"))
-    println(Translit.convert("---------------------"))
+    println("\nСТАТИСТИКА ПО СТРАНАМ:")
+    println("---------------------")
+    countryStats.toList()
+        .sortedByDescending { it.second }
+        .forEachIndexed { index, (country, count) ->
+            println("${index + 1}. $country: $count")
+        }
 
-    val sortedCountries = countryStats.toList().sortedByDescending { (_, count) -> count }
-
-    for ((index, pair) in sortedCountries.withIndex()) {
-        val (country, count) = pair
-        println("${index + 1}. $country: $count")
-    }
-
-    // Sohranyaem diagrammu
-    savePieChart(countryStats, "countries_pie_chart.png")
-    println(Translit.convert("\n✅ Diagramma sohranena v fail: countries_pie_chart.png"))
-
-    // Dopolnitelnaya informaciya
-    println(Translit.convert("\n" + "=".repeat(40)))
-    println(Translit.convert("VSEGO PROANALIZIROVANO: ${allPlayers.size} igrokov"))
-    println(Translit.convert("=".repeat(40)))
+    saveCountryChart(countryStats, "countries_pie_chart.png")
+    println("\n Диаграмма сохранена: countries_pie_chart.png")
 }
 
-fun savePieChart(data: Map<String, Int>, fileName: String) {
+private fun saveCountryChart(data: Map<String, Int>, fileName: String) {
     val dataset = DefaultPieDataset<String>()
-
-    // Zapolnyaem dannyami
-    for ((category, value) in data) {
-        dataset.setValue(category, value.toDouble())
+    data.forEach { (country, count) ->
+        dataset.setValue(country, count.toDouble())
     }
 
-    // Sozdaem diagrammu
     val chart = ChartFactory.createPieChart(
-        Translit.convert("Raspredelenie igrokov po stranam"),
+        "Распределение игроков по странам",
         dataset,
-        true,  // legenda
-        true,  // podskazki
-        false  // URL
+        true,
+        true,
+        false
     )
 
-    // Sohranyaem kak PNG
-    val width = 800
-    val height = 600
-    ChartUtils.saveChartAsPNG(File(fileName), chart, width, height)
+    ChartUtils.saveChartAsPNG(File(fileName), chart, 800, 600)
 }

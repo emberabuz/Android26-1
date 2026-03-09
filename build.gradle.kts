@@ -21,6 +21,7 @@ tasks.test {
 }
 
 kotlin {
+    jvmToolchain(8)
     jvmToolchain(17)
 }
 
@@ -34,4 +35,8 @@ tasks.withType<JavaExec> {
 
 tasks.withType<Test> {
     systemProperty("file.encoding", "UTF-8")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
